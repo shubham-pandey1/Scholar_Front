@@ -49,7 +49,7 @@ const GlobeData = () => {
 
   const port = process.env.REACT_APP_PORT;
 
-  console.log(port);
+  // console.log(port);
 
   useEffect(() => {
     // Fetch data from the API
