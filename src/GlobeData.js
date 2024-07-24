@@ -1,13 +1,16 @@
+
+
 import React, { useState, useEffect } from 'react';
+import './App.css'; // Make sure to create this file for the CSS
 
 const GlobeData = () => {
-
   const circleContainerStyles = {
     position: 'relative',
-    width: '1010px',
+    width: '1600px',
     height: '1210px',
     borderRadius: '50%',
     margin: 'auto',
+    // overflow: 'hidden'
   };
 
   const centerStyles = {
@@ -36,9 +39,9 @@ const GlobeData = () => {
 
   const getCircleRadius = (circle) => {
     switch (circle) {
-      case 4: return 550; // Outermost circle
-      case 2: return 240; // Middle circle
-      case 3: return 400; // Inner circle
+      case 4: return 600; // Outermost circle
+      case 2: return 230; // Middle circle
+      case 3: return 430; // Inner circle
       default: return 0;
     }
   };
@@ -48,8 +51,6 @@ const GlobeData = () => {
   const [error, setError] = useState(null);
 
   const port = process.env.REACT_APP_PORT;
-
-  // console.log(port);
 
   useEffect(() => {
     // Fetch data from the API
@@ -82,93 +83,62 @@ const GlobeData = () => {
 
   return (
     <div className=''>
-      <div className='text-center mt-8 pt-6 font-bold text-4xl'><h1>Document Required for Study Abroad Loan</h1></div>
+      <div className='text-center my-8 py-6 mb-24 font-bold text-4xl '><h1>Document Required for Study Abroad Loan</h1></div>
       <div className="flex justify-center items-center h-screen">
         <div style={circleContainerStyles}>
           <div style={centerStyles}>
             <h3 className="font-bold">{centerItem.title}</h3>
             <p className="text-sm text-gray-600 p-1">{centerItem.description}</p>
           </div>
-          {data.filter(item => item.circle !== 1).map((item, index) => {
-            const itemsInCircle = data.filter(d => d.circle === item.circle).length;
-            const angleStep = 360 / itemsInCircle; // Calculate angle step for each item
+          {[4, 3, 2].map(circleNumber => (
+            <div key={circleNumber} className={`circle-${circleNumber} rotating-circle`}>
+              {data.filter(item => item.circle === circleNumber).map((item, index) => {
+                const itemsInCircle = data.filter(d => d.circle === item.circle).length;
+                const angleStep = 360 / itemsInCircle; // Calculate angle step for each item
 
-            let angle;
-            if (item.circle % 2 === 0)
-              angle = angleStep * index;
-            else
-              angle = angleStep * index + (angleStep / 2); // Adjust angle for better spacing
+                const angle = angleStep * index;
+                const radians = (angle * Math.PI) / 180;
+                const radius = getCircleRadius(item.circle);
+                const x = Math.cos(radians) * radius;
+                const y = Math.sin(radians) * radius;
 
-            const radians = (angle * Math.PI) / 180;
-            const radius = getCircleRadius(item.circle);
-            const x = Math.cos(radians) * radius;
-            const y = Math.sin(radians) * radius;
+                const itemWidth = 195; // Adjust size as needed
+                const itemHeight = 200; // Adjust size as needed
 
-            const itemWidth = 200; // Adjust size as needed
-            const itemHeight = 200; // Adjust size as needed
+                const itemStyles = {
+                  position: 'absolute',
+                  top: `calc(50% + ${y}px - ${itemHeight / 2}px)`, // Center item vertically
+                  left: `calc(50% + ${x}px - ${itemWidth / 2}px)`, // Center item horizontally
+                  width: `${itemWidth}px`,
+                  height: `${itemHeight}px`,
+                  textAlign: 'center',
+                  borderRadius: '50%',
+                  backgroundColor: 'white',
+                  padding: '17px',
+                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                  boxSizing: 'border-box',
+                  background: 'rgb(250,250,254)',
+                  background: '-moz-radial-gradient(circle, rgba(250,250,254,1) 0%, rgba(255,215,223,1) 100%)',
+                  background: '-webkit-radial-gradient(circle, rgba(250,250,254,1) 0%, rgba(255,215,223,1) 100%)',
+                  background: 'radial-gradient(circle, rgba(250,250,254,1) 0%, rgba(255,215,223,1) 100%)',
+                  filter: 'progid:DXImageTransform.Microsoft.gradient(startColorstr="#fafafe",endColorstr="#ffd7df",GradientType=1)',
+                  zIndex: 10,
+                  transform: `rotate(${-angle}deg)` // Ensure items maintain orientation
+                };
 
-            const itemStyles = {
-              position: 'absolute',
-              top: `calc(50% + ${y}px - ${itemHeight / 2}px)`, // Center item vertically
-              left: `calc(50% + ${x}px - ${itemWidth / 2}px)`, // Center item horizontally
-              width: `${itemWidth}px`,
-              height: `${itemHeight}px`,
-              textAlign: 'center',
-              borderRadius: '50%',
-              backgroundColor: 'white',
-              padding: '17px',
-              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-              boxSizing: 'border-box',
-              background: 'rgb(250,250,254)',
-              background: '-moz-radial-gradient(circle, rgba(250,250,254,1) 0%, rgba(255,215,223,1) 100%)',
-              background: '-webkit-radial-gradient(circle, rgba(250,250,254,1) 0%, rgba(255,215,223,1) 100%)',
-              background: 'radial-gradient(circle, rgba(250,250,254,1) 0%, rgba(255,215,223,1) 100%)',
-              filter: 'progid:DXImageTransform.Microsoft.gradient(startColorstr="#fafafe",endColorstr="#ffd7df",GradientType=1)',
-              zIndex: 10
-            };
-
-            return (
-              <div key={index} style={itemStyles}>
-                <h3 className="font-bold mb-2 text-center px-6">{item.title}</h3>
-                <p className="text-sm text-gray-600 whitespace-pre-line p-1">{item.description}</p>
-              </div>
-            );
-          })}
+                return (
+                  <div key={index} style={itemStyles} className={`item-${item.circle}`}>
+                    <h3 className="font-bold  text-center px-6">{item.title}</h3>
+                    <p className="text-sm text-gray-600 whitespace-pre-line px-1 pb-1">{item.description}</p>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
           {/* Dashed circles as pseudo-elements */}
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            width: '480px',
-            height: '480px',
-            borderRadius: '50%',
-            border: '2px dashed #ddd',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 1
-          }}></div>
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            width: '800px',
-            height: '800px',
-            borderRadius: '50%',
-            border: '2px dashed #ddd',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 1
-          }}></div>
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            width: '1100px',
-            height: '1100px',
-            borderRadius: '50%',
-            border: '2px dashed #ddd',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 1,
-            marginBottom: '10px'
-          }}></div>
+          <div className="outer-circle"></div>
+          <div className="middle-circle"></div>
+          <div className="inner-circle"></div>
         </div>
       </div>
     </div>
